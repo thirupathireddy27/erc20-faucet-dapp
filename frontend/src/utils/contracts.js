@@ -4,33 +4,111 @@ import FaucetABI from "../abi/TokenFaucet.json";
 
 const TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS;
 const FAUCET_ADDRESS = import.meta.env.VITE_FAUCET_ADDRESS;
+const RPC_URL = import.meta.env.VITE_RPC_URL;
 
-export async function getProvider() {
+/* =========================
+   PROVIDERS
+========================= */
+
+// READ-ONLY provider (works in Docker)
+function getRpcProvider() {
+  if (!RPC_URL) {
+    throw new Error("VITE_RPC_URL not set");
+  }
+  return new ethers.JsonRpcProvider(RPC_URL);
+}
+
+// WALLET provider (MetaMask)
+function getBrowserProvider() {
   if (!window.ethereum) {
     throw new Error("MetaMask not installed");
   }
   return new ethers.BrowserProvider(window.ethereum);
 }
 
-export async function getSigner() {
-  const provider = await getProvider();
-  return provider.getSigner();
+async function getSigner() {
+  const provider = getBrowserProvider();
+  return await provider.getSigner();
 }
 
-export async function getTokenContract() {
-  const signer = await getSigner();
+/* =========================
+   CONTRACTS
+========================= */
+
+// READ token (balanceOf etc.)
+export function getTokenReadContract() {
   return new ethers.Contract(
     TOKEN_ADDRESS,
     TokenABI.abi,
-    signer
+    getRpcProvider()
   );
 }
 
-export async function getFaucetContract() {
+// WRITE faucet (requestTokens)
+export async function getFaucetWriteContract() {
   const signer = await getSigner();
   return new ethers.Contract(
     FAUCET_ADDRESS,
     FaucetABI.abi,
     signer
   );
+}
+
+/* =========================
+   READ FUNCTIONS
+========================= */
+
+export async function getTokenBalance(address) {
+  const token = getTokenReadContract();
+  return (await token.balanceOf(address)).toString();
+}
+
+export async function canClaim(address) {
+  const faucet = new ethers.Contract(
+    FAUCET_ADDRESS,
+    FaucetABI.abi,
+    getRpcProvider()
+  );
+  return await faucet.canClaim(address);
+}
+
+export async function getRemainingAllowance(address) {
+  const faucet = new ethers.Contract(
+    FAUCET_ADDRESS,
+    FaucetABI.abi,
+    getRpcProvider()
+  );
+  return (await faucet.remainingAllowance(address)).toString();
+}
+
+/* =========================
+   WRITE FUNCTION
+========================= */
+
+export async function requestTokens() {
+  const faucet = await getFaucetWriteContract();
+  const tx = await faucet.requestTokens();
+  await tx.wait();
+  return tx.hash;
+}
+
+/* =========================
+   WALLET
+========================= */
+
+export async function connectWallet() {
+  const provider = getBrowserProvider();
+  const accounts = await provider.send("eth_requestAccounts", []);
+  return accounts[0];
+}
+
+/* =========================
+   ADDRESSES
+========================= */
+
+export function getContractAddresses() {
+  return {
+    token: TOKEN_ADDRESS,
+    faucet: FAUCET_ADDRESS,
+  };
 }
