@@ -1,114 +1,93 @@
-# ERC-20 Faucet DApp 🚰
+ERC-20 Token Faucet DApp (Sepolia)
 
-A complete **ERC-20 Faucet Decentralized Application** built using  
-**Solidity + Hardhat + React (Vite) + Ethers.js**, deployed on **Ethereum Sepolia Testnet**.
+A full-stack decentralized application (DApp) that implements an ERC-20 token faucet with enforced rate limits, wallet integration, and Dockerized deployment.
+The faucet allows users to claim a fixed amount of tokens with a 24-hour cooldown and a lifetime claim limit, fully enforced on-chain.
 
-## ✨ Features
-- Connect MetaMask wallet
-- Claim ERC-20 tokens from a faucet
-- View token balance
-- Enforced cooldown & lifetime limits
+FEATURES
+- ERC-20 compliant token with fixed maximum supply
+- 24-hour cooldown per address
+- Lifetime claim limit per address
+- Admin-controlled pause/unpause
+- MetaMask wallet integration
+- Real-time token balance updates
+- User-friendly error handling
+- Deterministic evaluation interface (window.__EVAL__)
+- Fully Dockerized frontend with health checks
 
----
+ARCHITECTURE OVERVIEW
+User Wallet (MetaMask)
+→ Frontend (React + Ethers.js)
+→ TokenFaucet Smart Contract
+→ ERC-20 Token Contract
 
-## 🔗 Live Network
-- **Ethereum Sepolia Testnet**
+DEPLOYED CONTRACTS (SEPOLIA)
+ERC-20 Token:
+0x10a619Ca52C84Af1F1F48733594311a71F9c8497
+https://sepolia.etherscan.io/address/0x10a619Ca52C84Af1F1F48733594311a71F9c8497
 
----
+Token Faucet:
+0xf5da04643556eb8642e81DD2034afe54449D10C5
+https://sepolia.etherscan.io/address/0xf5da04643556eb8642e81DD2034afe54449D10C5
 
-## 📦 Tech Stack
+EVALUATION INTERFACE
+The frontend exposes a global evaluation object:
 
-### Smart Contracts
-- Solidity ^0.8.20
-- OpenZeppelin ERC20
-- Hardhat
-- Ethers.js
+window.__EVAL__
+- connectWallet()
+- requestTokens()
+- getBalance(address)
+- canClaim(address)
+- getRemainingAllowance(address)
+- getContractAddresses()
 
-### Frontend
-- React (Vite)
-- Ethers.js
-- MetaMask
+All numeric values are returned as strings.
 
----
+RUN LOCALLY WITH DOCKER
+1. Clone repository
+2. Copy environment file
+3. Run Docker
 
-## 📁 Project Structure
-
-```text
-ERC20-FAUCET-DAPP/
-│
-├── contracts/
-│   ├── Token.sol
-│   └── TokenFaucet.sol
-│
-├── scripts/
-│   └── deploy.js
-│
-├── test/
-│   └── TokenFaucet.test.js
-│
-├── frontend/
-│   ├── src/
-│   │   ├── abi/
-│   │   │   ├── FaucetToken.json
-│   │   │   └── TokenFaucet.json
-│   │   ├── utils/
-│   │   │   └── contracts.js
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   │
-│   ├── index.html
-│   └── package.json
-│
-├── hardhat.config.js
-├── package.json
-└── README.md
----
-
-## 🚀 Deployed Contracts (Sepolia)
-
-| Contract | Address |
-|--------|---------|
-| FaucetToken | `0x10a619Ca52C84Af1F1F48733594311a71F9c8497` |
-| TokenFaucet | `0xf5da04643556eb8642e81DD2034afe54449D10C5` |
-
----
-
-## 🛠️ Setup Instructions
-
-### 1️⃣ Clone Repository
-```bash
-git clone https://github.com/YOUR_USERNAME/erc20-faucet-dapp.git
+Commands:
+git clone <https://github.com/thirupathireddy27/erc20-faucet-dapp.git>
 cd erc20-faucet-dapp
+cp .env.example .env
+docker compose up --build
 
-🛠️ Backend Setup
-2️⃣ Install Backend Dependencies
-npm install
+Access:
+http://localhost:3000
+Health:
+http://localhost:3000/health
 
-3️⃣ Create .env File (DO NOT COMMIT)
-SEPOLIA_RPC_URL=YOUR_INFURA_OR_ALCHEMY_URL
-PRIVATE_KEY=YOUR_WALLET_PRIVATE_KEY
+ENVIRONMENT VARIABLES
+VITE_RPC_URL=https://sepolia.infura.io/v3/YOUR_INFURA_KEY
+VITE_TOKEN_ADDRESS=0xYourTokenAddress
+VITE_FAUCET_ADDRESS=0xYourFaucetAddress
 
-🧪 Compile & Test Smart Contracts
-npx hardhat compile
-npx hardhat test
+SECURITY CONSIDERATIONS
+- Solidity ^0.8.x overflow protection
+- Only faucet can mint tokens
+- Admin-only pause functionality
+- Checks-effects-interactions pattern
+- Clear revert messages
 
-🚀 Deploy Contracts to Sepolia
-npx hardhat run scripts/deploy.js --network sepolia
+DESIGN DECISIONS
+- Fixed faucet amount for predictable UX
+- 24-hour cooldown to prevent abuse
+- Lifetime cap for fair distribution
+- Fully on-chain enforcement
 
-🎨 Frontend Setup
-cd frontend
-npm install
-npm run dev
+SCREENSHOTS
+Screenshots are available in the screenshots/ directory:
+- Wallet connected
+- Token balance display
+- Successful claim
+- Cooldown error
+- Disabled claim button
+- Health endpoint
 
-
-Open in browser:
-
-http://localhost:5173
-
-🦊 MetaMask Requirements
-
-Network: Ethereum Sepolia
-
-Wallet funded with Sepolia ETH
-
-Token & Faucet ABIs placed in frontend/src/abi
+STATUS
+All core requirements satisfied:
+- Contracts deployed and verified
+- Frontend fully functional
+- Docker deployment verified
+- Evaluation interface operational
