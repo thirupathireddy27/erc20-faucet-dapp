@@ -11,10 +11,7 @@ contract FaucetToken is ERC20, Ownable {
     /// @notice Address allowed to mint tokens (Faucet contract)
     address public faucet;
 
-    constructor(
-        string memory name_,
-        string memory symbol_
-    ) ERC20(name_, symbol_) Ownable(msg.sender) {}
+    constructor() ERC20("Faucet Token", "FAU") Ownable(msg.sender) {}
 
     /**
      * @notice Set faucet address (only owner)

@@ -3,15 +3,17 @@ const { ethers } = require("hardhat");
 
 describe("ERC20 Faucet DApp", function () {
   const FAUCET_AMOUNT = ethers.parseEther("100");
-  
+
   async function deployFixture() {
     const [admin, user] = await ethers.getSigners();
 
     const Token = await ethers.getContractFactory("FaucetToken");
-    const token = await Token.deploy("FaucetToken", "FCT");
+    const token = await Token.deploy();
+    await token.waitForDeployment();
 
     const Faucet = await ethers.getContractFactory("TokenFaucet");
     const faucet = await Faucet.deploy(await token.getAddress());
+    await faucet.waitForDeployment();
 
     await token.setFaucet(await faucet.getAddress());
 

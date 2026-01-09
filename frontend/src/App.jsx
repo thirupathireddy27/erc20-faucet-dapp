@@ -29,28 +29,28 @@ function App() {
   }
 
   async function claimTokens() {
-  try {
-    setError("");
-    setMessage("");
+    try {
+      setError("");
+      setMessage("");
 
-    const eligible = await canClaim(address);
-    if (!eligible) {
-      setError("Cooldown period not elapsed ⏳");
-      return;
+      const eligible = await canClaim(address);
+      if (!eligible) {
+        setError("Cooldown period not elapsed ⏳");
+        return;
+      }
+
+      setMessage("Claiming tokens...");
+      await requestTokens();
+
+      const bal = await getTokenBalance(address);
+      setBalance(ethers.formatEther(bal));
+
+      setMessage("Tokens claimed successfully ✅");
+    } catch (err) {
+      setMessage("");
+      setError(err.reason || "Transaction failed");
     }
-
-    setMessage("Claiming tokens...");
-    await requestTokens();
-
-    const bal = await getTokenBalance(address);
-    setBalance(ethers.formatEther(bal));
-
-    setMessage("Tokens claimed successfully ✅");
-  } catch (err) {
-    setMessage("");
-    setError(err.reason || "Transaction failed");
   }
-}
 
   return (
     <div style={{ padding: "2rem", fontFamily: "Arial" }}>
@@ -62,7 +62,7 @@ function App() {
         <>
           <p><strong>Connected:</strong> {address}</p>
           <p><strong>Token Balance:</strong> {balance}</p>
-          <button onClick={claimTokens} disabled>Claim Tokens</button>
+          <button onClick={claimTokens}>Claim Tokens</button>
         </>
       )}
 

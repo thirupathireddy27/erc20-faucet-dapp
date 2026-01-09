@@ -14,11 +14,32 @@ FEATURES
 - Deterministic evaluation interface (window.__EVAL__)
 - Fully Dockerized frontend with health checks
 
-ARCHITECTURE OVERVIEW
-User Wallet (MetaMask)
-→ Frontend (React + Ethers.js)
-→ TokenFaucet Smart Contract
-→ ERC-20 Token Contract
+## ARCHITECTURE DIAGRAM
+
+```mermaid
+graph TD
+    User((User)) -- Connect Wallet --> Frontend
+    User -- Claim Tokens --> Frontend
+    
+    subgraph "DApp Frontend (Dockerized)"
+        Frontend[React Application]
+        Ethers[Ethers.js / Wallet Provider]
+        Frontend -- Uses --> Ethers
+    end
+    
+    subgraph "Blockchain (Sepolia)"
+        Faucet[TokenFaucet Contract]
+        Token[ERC-20 Token Contract]
+        
+        Ethers -- 1. requestTokens() --> Faucet
+        Faucet -- 2. Check Limits --> Faucet
+        Faucet -- 3. mint() --> Token
+        Token -- 4. Transfer Event --> Frontend
+    end
+    
+    Frontend -. Polls Balance .-> Token
+    Frontend -. Checks Allowance .-> Faucet
+```
 
 DEPLOYED CONTRACTS (SEPOLIA)
 ERC-20 Token:
@@ -77,13 +98,22 @@ DESIGN DECISIONS
 - Fully on-chain enforcement
 
 SCREENSHOTS
-Screenshots are available in the screenshots/ directory:
-- Wallet connected
-- Token balance display
-- Successful claim
-- Cooldown error
-- Disabled claim button
-- Health endpoint
+Screenshots are available in the `screenshots/` directory:
+
+### Wallet Connected / App Loaded
+![App Loaded](screenshots/app-loaded.png)
+
+### Successful Claim
+![Successful Claim](screenshots/claim-success.png)
+
+### Cooldown Error
+![Cooldown Error](screenshots/cooldown-error.png)
+
+### Claim Disabled
+![Claim Disabled](screenshots/claim-disabled.png)
+
+### Health Endpoint
+![Health Endpoint](screenshots/health-endpoint.png)
 
 STATUS
 All core requirements satisfied:

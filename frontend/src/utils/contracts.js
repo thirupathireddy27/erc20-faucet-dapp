@@ -86,10 +86,18 @@ export async function getRemainingAllowance(address) {
 ========================= */
 
 export async function requestTokens() {
-  const faucet = await getFaucetWriteContract();
-  const tx = await faucet.requestTokens();
-  await tx.wait();
-  return tx.hash;
+  try {
+    const faucet = await getFaucetWriteContract();
+    console.log("Requesting tokens from:", FAUCET_ADDRESS);
+    const tx = await faucet.requestTokens({ gasLimit: 500000 });
+    console.log("Transaction sent:", tx.hash);
+    await tx.wait();
+    console.log("Transaction mined");
+    return tx.hash;
+  } catch (error) {
+    console.error("requestTokens error:", error);
+    throw error;
+  }
 }
 
 /* =========================
